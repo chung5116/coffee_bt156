@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     Button btnStartConnection;
     Button btnSend;
 
-
+    TextView incomingMessages;
     StringBuilder messages;
 
     EditText etSend;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static Boolean isExit = false;
     private static Boolean hasTask = false;
 
-    Toolbar toolbar;
+
 
 
 
@@ -167,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button btnONOFF = (Button) findViewById(R.id.btnONOFF);
+
+
         lvNewDevices = (ListView) findViewById(R.id.lvNewDevices);
         mBTDevices = new ArrayList<>();
 
@@ -175,10 +176,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         btnSend = (Button) findViewById(R.id.btnSend);
         etSend = (EditText) findViewById(R.id.editText);
 
-
+        incomingMessages = (TextView)findViewById(R.id.incomingMessage);
         messages = new StringBuilder();
 
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter("incomingMessage"));
 
 
         //Broadcasts when bond state changes (ie:pairing)
@@ -190,13 +191,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         lvNewDevices.setOnItemClickListener(MainActivity.this);
 
 
-        btnONOFF.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "onClick: enabling/disabling bluetooth.");
-                enableDisableBT();
-            }
-        });
+
 
         btnStartConnection.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
                 try {
                     byte[] bytes = etSend.getText().toString().getBytes(Charset.defaultCharset());
-                    mBluetoothConnection.write(bytes);
+                    mBluetoothConnection.write1(bytes);
 
                     etSend.setText("");
 
@@ -222,12 +217,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
-
-
-
-
-
-
     }
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -235,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String text = intent.getStringExtra("theMessage");
 
             messages.append(text + "\n");
-
+            incomingMessages.setText(messages);
 
         }
     };
@@ -350,7 +339,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onItemClick: deviceName = " + deviceName);
         Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
 
+
         Toast.makeText(this,"已點選裝置",Toast.LENGTH_SHORT).show();
+
 
         //create the bond.
         //NOTE: Requires API 17+? I think this is JellyBean

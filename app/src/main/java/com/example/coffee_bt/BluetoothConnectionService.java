@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -39,6 +40,10 @@ public class BluetoothConnectionService {
     ProgressDialog mProgressDialog;
 
     private ConnectedThread mConnectedThread;
+
+    MainActivity mStartConnection;
+
+
 
     public BluetoothConnectionService(Context context) {
         mContext = context;
@@ -79,14 +84,13 @@ public class BluetoothConnectionService {
             BluetoothSocket socket = null;
 
 
-
             try{
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
                 Log.d(TAG, "run: RFCOM server socket start.....");  //點完裝置顯示到這RFCOM server socket start.....
 
-
                 socket = mmServerSocket.accept();  //1. 好像是這裡有一個accept  2.debug時這條沒法執行，要另一台手機按下連接後才可以
+
                 Log.d(TAG, "run: RFCOM server socket accepted connection.");
                 Log.d(TAG,"AAAAAAAAAAAAAAAAA");
 
@@ -120,17 +124,19 @@ public class BluetoothConnectionService {
      * with a device. It runs straight through; the connection either
      * succeeds or fails.
      */
+    private BluetoothSocket mmSocket;
     private class ConnectThread extends Thread {
-        private BluetoothSocket mmSocket;
+        //private BluetoothSocket mmSocket;  //慢一點
+
 
         public ConnectThread(BluetoothDevice device, UUID uuid) {
-            Log.d(TAG, "ConnectThread: started.");
+            Log.d(TAG, "ConnecThretad: started.");
             mmDevice = device;
             deviceUUID = uuid;
         }
 
-        //看一下誰叫
-        public void run() {
+        //btnConnection後loop來到這
+        public void run() {    //automatically execute in the thread
             BluetoothSocket tmp = null;
             Log.i(TAG, "RUN mConnectThread ");
 
@@ -225,14 +231,16 @@ public class BluetoothConnectionService {
      **/
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "ConnectedThread: Starting.");
             Log.d(TAG, "連接成功");
 
             mmSocket = socket;
-
+            InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
             //dismiss the progressdialog when connection is established
@@ -244,31 +252,58 @@ public class BluetoothConnectionService {
 
 
             try {
+                tmpIn = mmSocket.getInputStream();
                 tmpOut = mmSocket.getOutputStream();
                 Log.d(TAG,"tmp有東西囉");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            mmInStream = tmpIn;
             mmOutStream = tmpOut;
             Log.d(TAG,"mmOutStream = tmpOut");
         }
 
 
+        public void run(){
+            byte[] buffer = new byte[1024];  // buffer store for the stream
+
+            int bytes; // bytes returned from read()
+
+            // Keep listening to the InputStream until an exception occurs
+            while (true) {
+                // Read from the InputStream
+                try {
+                    bytes = mmInStream.read(buffer);
+                    String incomingMessage = new String(buffer, 0, bytes);
+                    Log.d(TAG, "InputStream: " + incomingMessage);
+
+
+                    Intent incomingMessageIntent = new Intent("incomingMessage");
+                    incomingMessageIntent.putExtra("theMessage",incomingMessage);
+                } catch (IOException e) {
+                    Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
+                    //這邊設警告  但用toast會crash
+                    break;
+                }
+            }
+        }
+
+
 
         //Call this from the main activity to send data to the remote device
-        public void write (byte[] bytes) {
-            String text = new String(bytes, Charset.defaultCharset());
-            Log.d(TAG, "write: Writing to outputstream: " + text);
+        public void write2 (byte[] buffer) {  //out
+            //String text = new String(bytes, Charset.defaultCharset());
+            //Log.d(TAG, "write: Writing to outputstream: " + text);
             Log.d(TAG,"有東西傳出去");
             try {
-                mmOutStream.write(bytes);
-                Toast.makeText(mContext,"送出訊息",Toast.LENGTH_SHORT).show();
+                mmOutStream.write(buffer); //out
+
+                Toast.makeText(mContext,"送出",Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 Log.e(TAG, "write: Error writing to output stream. " + e.getMessage() );
                 Log.d(TAG,"ERROR 傳出去");
                 Toast.makeText(mContext,"請重新連接裝置",Toast.LENGTH_SHORT).show();
-            }
+             }
         }
         //這邊有問題
 
@@ -286,7 +321,7 @@ public class BluetoothConnectionService {
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(mmSocket);   //這邊進去看一下
         mConnectedThread.start();       //這邊進去看一下
-        Log.d(TAG,"mConnectedThread.start");
+        Log.d(TAG,"mConnectedThread.start");   //這邊最後
 
 
         //Thread中加入Toast
@@ -301,16 +336,17 @@ public class BluetoothConnectionService {
      * Write to the ConnectedThread in an unsynchronized manner
      *
      * @param out The bytes to write
-     * @see ConnectedThread#write(byte[])
+     * @see ConnectedThread#write1(byte[])
      */
-    public void write(byte[] out) {
+    public void write1(byte[] out) {
+
         // Create temporary object
         ConnectedThread r;
 
         // Synchronize a copy of the ConnectedThread
         Log.d(TAG, "write: Write Called.");
         //perform the write
-        mConnectedThread.write(out);
+        mConnectedThread.write2(out);
         Log.d(TAG,"perform the write");
     }
 

@@ -33,7 +33,7 @@ public class sec_page_activity extends AppCompatActivity implements NumberPicker
     private TextView tvShowNumbers;
     Button sendspeed;
 
-    BluetoothConnectionService mBluetoothConnection;
+
     private int value;
     private int mvalue;
     private String Svalue;
@@ -58,8 +58,8 @@ public class sec_page_activity extends AppCompatActivity implements NumberPicker
         tvShowNumbers = (TextView)findViewById(R.id.tvShowNumbers);
         sendspeed = (Button)findViewById(R.id.sendspeed);
 
-        // in order to prevent mBluetoothConnection == null
-        mBluetoothConnection = new BluetoothConnectionService(sec_page_activity.this);
+
+
 
 
 
@@ -79,7 +79,7 @@ public class sec_page_activity extends AppCompatActivity implements NumberPicker
             public void onClick(View view) {
 
                     byte[] bytes = Svalue.getBytes(Charset.defaultCharset());
-                    mBluetoothConnection.write1(bytes);
+                    //mBluetoothConnection.write1(bytes);
                     tvShowNumbers.setText(""+Svalue);
                     /*try {
                 }catch (Exception e){
@@ -90,39 +90,7 @@ public class sec_page_activity extends AppCompatActivity implements NumberPicker
         });
     }
 
-    /**
-     * Write to the ConnectedThread in an unsynchronized manner
-     *
-     * @param out The bytes to write
-     *
-     */
-    public void write1(byte[] out) {
 
-        // Create temporary object
-
-
-        // Synchronize a copy of the ConnectedThread
-        Log.d(TAG, "write: Write Called.");
-        //perform the write
-        write2(out);
-        Log.d(TAG,"perform the write");
-    }
-
-
-    public void write2 (byte[] buffer) {  //out
-        //String text = new String(bytes, Charset.defaultCharset());
-        //Log.d(TAG, "write: Writing to outputstream: " + text);
-        Log.d(TAG,"有東西傳出去");
-        try {
-            mmOutStream.write(buffer); //out
-
-            Toast.makeText(mContext,"送出",Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Log.e(TAG, "write: Error writing to output stream. " + e.getMessage() );
-            Log.d(TAG,"ERROR 傳出去");
-            Toast.makeText(mContext,"請重新連接裝置",Toast.LENGTH_SHORT).show();
-        }
-    }
 
 
     @Override

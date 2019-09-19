@@ -264,7 +264,7 @@ public class BluetoothConnectionService {
         }
 
 
-        public void run(){
+        /*public void run(){
             byte[] buffer = new byte[1024];  // buffer store for the stream
 
             int bytes; // bytes returned from read()
@@ -283,10 +283,10 @@ public class BluetoothConnectionService {
                 } catch (IOException e) {
                     Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
                     //這邊設警告  但用toast會crash
-                    break;
+                    //break;  這邊break先取消，因為暫時不用讀資料
                 }
             }
-        }
+        }*/
 
 
 
@@ -298,8 +298,9 @@ public class BluetoothConnectionService {
             try {
                 mmOutStream.write(buffer); //out
 
-                Toast.makeText(mContext,"送出",Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext,"送出成功",Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
+                //這個要解決
                 Log.e(TAG, "write: Error writing to output stream. " + e.getMessage() );
                 Log.d(TAG,"ERROR 傳出去");
                 Toast.makeText(mContext,"請重新連接裝置",Toast.LENGTH_SHORT).show();

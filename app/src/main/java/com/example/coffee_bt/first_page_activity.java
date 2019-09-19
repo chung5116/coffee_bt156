@@ -21,9 +21,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -44,7 +47,15 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
 
     BluetoothConnectionService mBluetoothConnection;
 
+    //sec_page
+    private static final String TAG2 = "sec_page_Activity";
 
+    int value;
+    int mvalue,mvalue2;
+    int value2;
+    int value0 = 0;
+    String Svalue,Svalue1;
+    boolean mturn;
 
 
 
@@ -64,16 +75,13 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
 
         lvNewDevices.setOnItemClickListener(first_page_activity.this);
 
-
-
-        /**
-         * 這邊開始
-         */
         enableDisableBT();
 
 
 
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -256,16 +264,72 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
         },1000);
 
 
-        //換到下一頁
-        Intent intent = new Intent();
-        intent.setClass(first_page_activity.this,sec_page_activity.class);
-        Log.d(TAG,"test2");
-        startActivity(intent);
+        jumpto_sec_page();
+
+    }
+
+    public void jumpto_sec_page(){
+        setContentView(R.layout.activity_sec_page_activity);
+        final NumberPicker mNumberPicker =(NumberPicker)findViewById(R.id.picker);
+        final TextView tvShowNumbers =(TextView)findViewById(R.id.tvShowNumbers);
+        Button sendspeed = (Button)findViewById(R.id.sendspeed);
+        Button playpause =(Button)findViewById(R.id.play_pause);
 
 
+        mNumberPicker.setMinValue(0);  //把0改掉
+        mNumberPicker.setMaxValue(6);
+
+        // to change formate of number in numberpicker
+        mNumberPicker.setFormatter(new NumberPicker.Formatter() {
+            @Override
+            public String format(int i) {
+                return String.format("%02d", i);
+            }
+        });
+
+        mNumberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                value = Integer.valueOf(mNumberPicker.getValue()).intValue();
+                mvalue = value*682;
+                Svalue = String.valueOf(mvalue);
+            }
+        });
 
 
+        sendspeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                byte[] bytes = Svalue.getBytes(Charset.defaultCharset());
+                mBluetoothConnection.write1(bytes);
+                mturn = true;
+                value2 = value;
+                tvShowNumbers.setText(""+value);
+            }
+        });
 
+
+        //暫停繼續
+        playpause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mturn == true) {
+                    Log.d(TAG, "第一");
+                    Svalue1 = String.valueOf(value0);
+                    byte[] bytes = Svalue1.getBytes(Charset.defaultCharset());
+                    mBluetoothConnection.write1(bytes);
+                    mturn = false;
+                } else {
+                    mvalue2 = value2*682;
+                    Log.d(TAG,"第二");
+                    Svalue1 = String.valueOf(mvalue2);
+                    byte[]bytes = Svalue1.getBytes(Charset.defaultCharset());
+                    mBluetoothConnection.write1(bytes);
+                    mturn = true;
+                }
+            }
+
+        });
     }
 
 

@@ -264,7 +264,7 @@ public class BluetoothConnectionService {
         }
 
 
-        /*public void run(){
+        public void run(){
             byte[] buffer = new byte[1024];  // buffer store for the stream
 
             int bytes; // bytes returned from read()
@@ -278,15 +278,16 @@ public class BluetoothConnectionService {
                     Log.d(TAG, "InputStream: " + incomingMessage);
 
 
-                    Intent incomingMessageIntent = new Intent("incomingMessage");
-                    incomingMessageIntent.putExtra("theMessage",incomingMessage);
+                    Intent incomingMessageIntent = new Intent("incomingMessage_for_weight");
+                    incomingMessageIntent.putExtra("theMessage_for_weight",incomingMessage);
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(incomingMessageIntent);
                 } catch (IOException e) {
                     Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );
                     //這邊設警告  但用toast會crash
-                    //break;  這邊break先取消，因為暫時不用讀資料
+                    break;  //這邊break先取消，因為暫時不用讀資料
                 }
             }
-        }*/
+        }
 
 
 

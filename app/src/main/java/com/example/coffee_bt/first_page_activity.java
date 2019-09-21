@@ -2,6 +2,7 @@ package com.example.coffee_bt;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -58,6 +60,8 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
     boolean mturn;
 
 
+    StringBuilder messages =new StringBuilder();
+    //TextView beams_weight = (TextView)findViewById(R.id.beams_weight);
 
 
 
@@ -76,6 +80,11 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
         lvNewDevices.setOnItemClickListener(first_page_activity.this);
 
         enableDisableBT();
+
+
+
+
+        //LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver1,new IntentFilter("incomingMessage_for_weight"));
 
 
 
@@ -223,6 +232,17 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
         }
     };
 
+
+    /*public BroadcastReceiver mReceiver1 = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String gweight = intent.getStringExtra("theMessage_for_weight");
+            messages.append(gweight+"\n");
+            beams_weight1.setText(messages);
+            Log.d(TAG2,"重量");
+        }
+    };*/
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //first cancel discovery because its very memory intensive.
@@ -270,6 +290,40 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
 
     public void jumpto_sec_page(){
         setContentView(R.layout.activity_sec_page_activity);
+        Button return_zero = (Button)findViewById(R.id.return_zero);
+
+        final String zero = "t";
+        final TextView beams_weight1 = (TextView)findViewById(R.id.beams_weight);
+        //StringBuilder messages = new StringBuilder();
+
+        BroadcastReceiver mReceiver1 = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String gweight = intent.getStringExtra("theMessage_for_weight");
+
+                //messages.append(gweight);
+                beams_weight1.setText(gweight);
+                Log.d(TAG2,"重量");
+
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver1,new IntentFilter("incomingMessage_for_weight"));
+
+
+
+
+
+
+
+
+        return_zero.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                byte[]bytes = zero.getBytes(Charset.defaultCharset());
+                mBluetoothConnection.write1(bytes);
+            }
+        });
+        /*
         final NumberPicker mNumberPicker =(NumberPicker)findViewById(R.id.picker);
         final TextView tvShowNumbers =(TextView)findViewById(R.id.tvShowNumbers);
         Button sendspeed = (Button)findViewById(R.id.sendspeed);
@@ -329,7 +383,7 @@ public class first_page_activity extends AppCompatActivity implements AdapterVie
                 }
             }
 
-        });
+        });*/
     }
 
 

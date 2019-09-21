@@ -50,13 +50,13 @@ public class sec_page_activity extends AppCompatActivity implements NumberPicker
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sec_page_activity);
 
-        mNumberPicker =(NumberPicker)findViewById(R.id.picker);
+        /*mNumberPicker =(NumberPicker)findViewById(R.id.picker);
         mNumberPicker.setMinValue(0);
         mNumberPicker.setMaxValue(6);
         //int nowValue = mNumberPicker.getValue();
 
         tvShowNumbers = (TextView)findViewById(R.id.tvShowNumbers);
-        sendspeed = (Button)findViewById(R.id.sendspeed);
+        sendspeed = (Button)findViewById(R.id.sendspeed);*/
 
 
 
